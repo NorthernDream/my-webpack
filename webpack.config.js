@@ -1,6 +1,9 @@
-const HtmlWebpackPlugin = require('html-webpack-plugin');
 const isDev = process.env.NODE_ENV === 'development';
 const config = require('./public/config')[isDev ? 'dev' : 'build'];
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+const path = require('path');
+
 
 module.exports = {
     mode: isDev ? 'development' : 'production',
@@ -28,10 +31,27 @@ module.exports = {
                                 ]
                             }
                         }
-                        
+
                     }
                 }, 'less-loader'],
                 exclude: /node_modules/
+            },
+            {
+                test: /\.(png|jpg|gif|jpeg|webp|svg|eot|ttf|woff|woff2)$/,
+                use: [
+                    {
+                        loader: 'url-loader',
+                        options: {
+                            limit: 10240, //10K
+                            esModule: false
+                        }
+                    }
+                ],
+                exclude: /node_modules/
+            },
+            {
+                test: /.html$/,
+                use: 'html-withimg-loader'
             }
         ]
     },
@@ -41,7 +61,8 @@ module.exports = {
             template: './public/index.html',
             filename: 'index.html', //打包后的文件名
             config: config.template
-        })
+        }), 
+        new CleanWebpackPlugin()
 
     ],
     devServer: {
